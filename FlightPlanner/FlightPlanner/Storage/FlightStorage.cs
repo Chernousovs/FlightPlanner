@@ -8,9 +8,9 @@ namespace FlightPlanner.Storage
 {
     public static class FlightStorage
     {
-        private static readonly object flightLock = new object();
-        private static List<Flight> flights = new List<Flight>();
-        private static int id; //last successful added flight ID
+        private static readonly object _flightLock = new object();
+        private static List<Flight> _flights = new List<Flight>();
+        private static int _id; //last successful added flight ID
 
         public static Flight AddFlight(AddFlightRequest request)
         {
@@ -44,12 +44,12 @@ namespace FlightPlanner.Storage
                 ArrivalTime = request.ArrivalTime,
                 DepartureTime = request.DepartureTime,
                 Carrier = request.Carrier,
-                Id = ++id
+                Id = ++_id
             };
 
-            lock (flightLock)
+            lock (_flightLock)
             {
-                if (flights.Count > 0)
+                if (_flights.Count > 0)
                 {
                     if (FlightAlreadyExists(flight))
                     {
@@ -57,7 +57,7 @@ namespace FlightPlanner.Storage
                     }
                 }
 
-                flights.Add(flight);
+                _flights.Add(flight);
             }
 
             return flight;
@@ -65,17 +65,17 @@ namespace FlightPlanner.Storage
 
         public static Flight GetFlight(int id)
         {
-            return flights.FirstOrDefault(o => o.Id == id);
+            return _flights.FirstOrDefault(o => o.Id == id);
         }
 
         public static List<Airport> SearchAirports(string search)
         {
             var airportList = new List<Airport>();
-            airportList.AddRange(flights.Select(o => o.From));
-            airportList.AddRange(flights.Select(o => o.To));
+            airportList.AddRange(_flights.Select(o => o.From));
+            airportList.AddRange(_flights.Select(o => o.To));
 
             return airportList.Where(o => o.AirportName.ToUpper().Contains(search.Trim().ToUpper())
-                                            || o.City.ToUpper().Contains(search.Trim().ToUpper())
+                                            || o.City.ToUpper().Contains( search.Trim().ToUpper())
                                             || o.Country.ToUpper().Contains(search.Trim().ToUpper())).ToList();
         }
 
@@ -92,9 +92,9 @@ namespace FlightPlanner.Storage
                 throw new FlightsIncorrectDataException("Airports are same");
             }
 
-            lock (flightLock)
+            lock (_flightLock)
             {
-                return flights.Where(o => o.From.AirportName == req.From
+                return _flights.Where(o => o.From.AirportName == req.From
                                           && o.To.AirportName == req.To
                                           && DateTime.Parse(o.DepartureTime).Date == DateTime.Parse(req.DepartureDate)).ToList();
             }
@@ -103,25 +103,25 @@ namespace FlightPlanner.Storage
 
         public static void RemoveFlight(int id)
         {
-            lock (flightLock)
+            lock (_flightLock)
             {
-                var flightToDelete = flights.FirstOrDefault(x => x.Id == id);
+                var flightToDelete = _flights.FirstOrDefault(x => x.Id == id);
                 if (flightToDelete != null)
                 {
-                    flights.Remove(flightToDelete);
+                    _flights.Remove(flightToDelete);
                 }
             }
         }
 
         public static void ClearFlights()
         {
-            flights.Clear();
-            id = 0;
+            _flights.Clear();
+            _id = 0;
         }
 
         private static bool FlightAlreadyExists(Flight flight)
         {
-            return flights.Any(o => o.Equals(flight));
+            return _flights.Any(o => o.Equals(flight));
         }
     }
 }
