@@ -2,10 +2,12 @@
 using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using Microsoft.AspNetCore.Cors;
 
 namespace FlightPlanner.Controllers
 {
     [Route("api")]
+    [EnableCors]
     [ApiController]
     public class CustomerApiController : ControllerBase
     {
