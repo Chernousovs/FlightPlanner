@@ -1,11 +1,11 @@
-using FlightPlanner.Handlers;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using FlightPlanner.Handlers;
+using Microsoft.AspNetCore.Authentication;
 
 namespace FlightPlanner
 {
@@ -23,14 +23,21 @@ namespace FlightPlanner
         {
 
             services.AddControllers();
-
-            services.AddAuthentication("BasicAuthentication")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FlightPlanner", Version = "v1" });
             });
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.WithOrigins("http://localhost:4200")
+                .AllowAnyHeader()
+                   .AllowCredentials()
+                    .AllowAnyMethod();
+
+            }));
+            services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,17 +51,17 @@ namespace FlightPlanner
             }
 
             app.UseRouting();
-
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("http://localhost:4200")
+                                       .AllowAnyHeader()
+                                          .AllowCredentials()
+                                           .AllowAnyMethod();
+            });
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseCors(builder =>
-            {
-                builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader();
-            });
+
 
             app.UseEndpoints(endpoints =>
             {
