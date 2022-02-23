@@ -63,6 +63,20 @@ namespace FlightPlanner.Storage
             return flight;
         }
 
+        public static Flight ConvertToFlight(AddFlightRequest request)
+        {
+            var flight = new Flight
+            {
+                From = request.From,
+                To = request.To,
+                ArrivalTime = request.ArrivalTime,
+                DepartureTime = request.DepartureTime,
+                Carrier = request.Carrier
+            };
+
+            return flight;
+        }
+
         public static Flight GetFlight(int id)
         {
             return _flights.FirstOrDefault(o => o.Id == id);

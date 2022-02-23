@@ -3,7 +3,9 @@ using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.EntityFrameworkCore;
 
 namespace FlightPlanner.Controllers
 {
@@ -13,11 +15,22 @@ namespace FlightPlanner.Controllers
     [Authorize]
     public class AdminApiController : ControllerBase
     {
+
+        private readonly FlightPlannerDBContext _context;
+
+        public AdminApiController(FlightPlannerDBContext context)
+        {
+            _context = context;
+        }
         [HttpGet]
         [Route("flights/{id:int}")]
         public IActionResult GetFlights(int id)
         {
-            var flight = FlightStorage.GetFlight(id);
+            var flight = _context.Flights
+                .Include(f=> f.From)
+                .Include(f => f.To)
+                .SingleOrDefault(f => f.Id == id);
+                //FlightStorage.GetFlight(id);
             if (flight != null)
             {
                 return Ok(flight);
@@ -36,6 +49,8 @@ namespace FlightPlanner.Controllers
 
                 if (flight != null)
                 {
+                    _context.Flights.Add(FlightStorage.ConvertToFlight(request));
+                    _context.SaveChanges();
                     return Created("", flight);
                 }
 
