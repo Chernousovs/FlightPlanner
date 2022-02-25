@@ -89,7 +89,7 @@ namespace FlightPlanner.Storage
             airportList.AddRange(_flights.Select(o => o.To));
 
             return airportList.Where(o => o.AirportName.ToUpper().Contains(search.Trim().ToUpper())
-                                            || o.City.ToUpper().Contains( search.Trim().ToUpper())
+                                            || o.City.ToUpper().Contains(search.Trim().ToUpper())
                                             || o.Country.ToUpper().Contains(search.Trim().ToUpper())).ToList();
         }
 

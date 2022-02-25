@@ -53,7 +53,10 @@ namespace FlightPlanner.Controllers
                     _context.SaveChanges();
                     return Created("", flight);
                 }
-
+                else if (FlightExists(request))
+                {
+                    return Conflict();
+                }
                 return Conflict();
             }
             catch (Exception)
@@ -66,8 +69,29 @@ namespace FlightPlanner.Controllers
         [Route("Flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
+            var flight = _context.Flights
+                .Include(f => f.From)
+                .Include(f => f.To)
+                .SingleOrDefault(f => f.Id == id);
+            if (flight == null)
+            {
+                return Ok();
+            }
+
+            _context.Flights.Remove(flight);
+            _context.SaveChanges();
+
             FlightStorage.RemoveFlight(id);
+
             return Ok();
+        }
+
+        private bool FlightExists(AddFlightRequest request)
+        {
+            return _context.Flights.Any(f => f.ArrivalTime == request.ArrivalTime &&
+                                             f.DepartureTime == request.DepartureTime &&
+                                             f.From.AirportName.Trim().ToLower() == request.From.AirportName.Trim().ToLower() &&
+                                             f.To.AirportName.Trim().ToLower() == request.To.AirportName.Trim().ToLower());
         }
     }
 }
