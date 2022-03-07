@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using FlightPlanner.Handlers;
+using FlightPlanner.Storage;
 using Microsoft.AspNetCore.Authentication;
 
 namespace FlightPlanner
@@ -27,6 +28,12 @@ namespace FlightPlanner
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "FlightPlanner", Version = "v1" });
             });
+
+            services.AddAuthentication("BasicAuthentication")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+
+            services.AddDbContext<FlightPlannerDBContext>(ServiceLifetime.Scoped);
+
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
                 builder.WithOrigins("http://localhost:4200")
@@ -35,8 +42,7 @@ namespace FlightPlanner
                     .AllowAnyMethod();
 
             }));
-            services.AddAuthentication("BasicAuthentication")
-                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
+            
 
         }
 
