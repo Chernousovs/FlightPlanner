@@ -42,7 +42,6 @@ namespace FlightPlanner.Controllers
 
                 return NotFound();
             }
-            
         }
 
         [HttpPost]
@@ -79,7 +78,6 @@ namespace FlightPlanner.Controllers
         [Route("flights/{id:int}")]
         public IActionResult GetFlights(int id)
         {
-            
             var flight = _context.Flights
                 .Include(f=> f.From)
                 .Include(f => f.To)
