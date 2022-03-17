@@ -1,0 +1,10 @@
+<div class="flight-search-form-section">
+  <h1 class="flight-search-form-title">Look up the best flights</h1>
+  <app-flight-search-form (searchFlightEvent)="submitForm($event)"></app-flight-search-form>
+
+  <div *ngIf="flights$ | async as flights">
+    <div *ngFor="let flight of flights" class="flight-card-wrapper">
+      <app-flight-card [flight]="flight"></app-flight-card>
+    </div>
+  </div>
+</div>

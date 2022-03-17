@@ -1,0 +1,25 @@
+.flight-search-form-section {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  //background-color: aqua;
+}
+
+.flight-search-form {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  //background-color: bisque;
+  padding: 20px;
+  border-radius: 4px;
+  box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+}
+
+.flight-search-form-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.flight-search-form-title {
+  text-align: center;
+}

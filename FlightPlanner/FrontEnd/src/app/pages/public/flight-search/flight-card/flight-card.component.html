@@ -1,0 +1,14 @@
+<mat-card *ngIf="flight" class="flight-card">
+  <mat-card-title>
+    {{ flight.from.city + ', ' + flight.from.country + ' - ' + flight.to.city + ', ' + flight.to.country }}
+  </mat-card-title>
+  <mat-card-subtitle>{{ flight.from.airport + ' - ' + flight.to.airport }}</mat-card-subtitle>
+  <mat-card-content>
+    <div>Arrival time : {{ flight.arrivalTime | date: 'dd.MM.YYYY HH:mm' }} </div>
+    <div>Departure time : {{ flight.departureTime | date: 'dd.MM.YYYY HH:mm' }} </div>
+    <div>Carrier: {{ flight.carrier }}</div>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button mat-button>View details</button>
+  </mat-card-actions>
+</mat-card>

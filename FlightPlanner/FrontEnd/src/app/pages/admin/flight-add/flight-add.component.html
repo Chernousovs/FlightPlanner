@@ -1,0 +1,62 @@
+<div class="flight-search-form-section">
+  <h1 class="flight-search-form-title">Add flight</h1>
+  <div class="flight-search-form-wrapper">
+    <form class="flight-search-form" [formGroup]="flightForm">
+
+      <div formGroupName = "from">
+        <h3>From</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Country</mat-label>
+          <input formControlName="country" matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>City</mat-label>
+          <input formControlName="city" matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Airport</mat-label>
+          <input formControlName="airport" matInput>
+        </mat-form-field>
+      </div>
+      <div formGroupName="to">
+        <h3>To</h3>
+        <mat-form-field appearance="outline">
+          <mat-label>Country</mat-label>
+          <input formControlName="country" matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>City</mat-label>
+          <input formControlName="city" matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Airport</mat-label>
+          <input formControlName="airport" matInput>
+        </mat-form-field>
+      </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Carrier</mat-label>
+          <input formControlName="carrier" matInput>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill">
+          <mat-label>Enter a date range</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate formControlName="departureTime" placeholder="Start date">
+            <input matEndDate formControlName="arrivalTime" placeholder="End date">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+          </mat-form-field>
+
+
+      <button (click)="submitForm()" mat-raised-button color="primary">Add</button>
+
+    </form>
+  </div>
+
+
