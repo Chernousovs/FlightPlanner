@@ -28,4 +28,8 @@ export class FlightFindComponent implements OnInit {
   submit(): void {
     this.flight$ = this.adminFlightService.findFlight(this.findFlightForm.value.id);
   }
+
+  delete(): void {
+    this.adminFlightService.deleteFlight(this.findFlightForm.value.id);
+  }
 }

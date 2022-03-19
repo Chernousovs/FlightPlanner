@@ -40,7 +40,7 @@ namespace FlightPlanner.Controllers
         }
 
         [HttpPut]
-        [Route("Flights")]
+        [Route("flights")]
         public IActionResult PutFlights(AddFlightRequest request)
         {
             lock (_flightLock)
@@ -64,7 +64,7 @@ namespace FlightPlanner.Controllers
         }
 
         [HttpDelete]
-        [Route("Flights/{id}")]
+        [Route("flights/{id}")]
         public IActionResult DeleteFlight(int id)
         {
             lock (_flightLock)
