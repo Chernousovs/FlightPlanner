@@ -1,0 +1,12 @@
+﻿using System;
+using FlightPlanner.Core.Models;
+
+namespace FlightPlanner.Core.Dto
+{
+    public class AddAirportDto
+    {
+        public string Country { get; set; }
+        public string City { get; set; }
+        public string Airport { get; set; }
+    }
+}
