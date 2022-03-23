@@ -1,7 +1,4 @@
-﻿using FlightPlanner.Core.Dto;
-using FlightPlanner.Core.Models;
-
-namespace FlightPlanner.Models
+﻿namespace FlightPlanner.Core.Models
 {
     public class Flight : Entity
     {

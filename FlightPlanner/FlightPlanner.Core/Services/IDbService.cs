@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using FlightPlanner.Core.Models;
+using System.Collections.Generic;
 using System.Linq;
-using FlightPlanner.Core.Models;
 
 namespace FlightPlanner.Core.Services
 {

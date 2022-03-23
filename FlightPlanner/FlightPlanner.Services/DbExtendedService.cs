@@ -1,6 +1,4 @@
-﻿
-
-using FlightPlanner.Core.Services;
+﻿using FlightPlanner.Core.Services;
 using FlightPlanner.Data;
 
 namespace FlightPlanner.Services

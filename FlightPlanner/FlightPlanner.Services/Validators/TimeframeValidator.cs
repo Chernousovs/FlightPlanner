@@ -1,17 +1,17 @@
-﻿using System;
-using FlightPlanner.Core.Dto;
+﻿using FlightPlanner.Core.Dto;
 using FlightPlanner.Core.Services;
+using System;
 
 namespace FlightPlanner.Services.Validators
 {
-    public class TimeframeValidator :IValidator
+    public class TimeFrameValidator : IValidator
     {
-        public bool Validate(AddFlightDto dto)
+        public bool Validate(FlightDto dto)
         {
-            var airrivalDate = DateTime.Parse(dto.ArrivalTime);
+            var arrivalDate = DateTime.Parse(dto.ArrivalTime);
             var departureDate = DateTime.Parse(dto.DepartureTime);
 
-            return airrivalDate > departureDate;
+            return arrivalDate > departureDate;
         }
     }
 }

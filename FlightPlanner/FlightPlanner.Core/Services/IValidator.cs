@@ -4,6 +4,6 @@ namespace FlightPlanner.Core.Services
 {
     public interface IValidator
     {
-        bool Validate(AddFlightDto dto);
+        bool Validate(FlightDto dto);
     }
 }

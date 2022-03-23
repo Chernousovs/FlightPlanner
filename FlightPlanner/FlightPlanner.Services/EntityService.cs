@@ -1,8 +1,8 @@
 ﻿using FlightPlanner.Core.Models;
 using FlightPlanner.Core.Services;
+using FlightPlanner.Data;
 using System.Collections.Generic;
 using System.Linq;
-using FlightPlanner.Data;
 
 namespace FlightPlanner.Services
 {

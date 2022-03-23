@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using FlightPlanner.Core.Dto;
+﻿using FlightPlanner.Core.Dto;
+using FlightPlanner.Core.Models;
 using FlightPlanner.Core.Services;
 using FlightPlanner.Data;
-using FlightPlanner.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FlightPlanner.Services
 {
@@ -31,13 +32,29 @@ namespace FlightPlanner.Services
             }
         }
 
-        public bool FlightAlreadyExistsInDb(AddFlightDto dto)
+        public bool FlightAlreadyExistsInDb(FlightDto dto)
         {
-            return Query().Any(f => f.ArrivalTime == dto.ArrivalTime 
+            return Query().Any(f => f.ArrivalTime == dto.ArrivalTime
                                     && f.DepartureTime == dto.DepartureTime
                                     && f.Carrier == dto.Carrier
-                                    && f.From.AirportName.Trim().ToLower() == dto.From.Airport.Trim().ToLower()
-                                    && f.To.AirportName.Trim().ToLower() == dto.To.Airport.Trim().ToLower());
+                                    && string.Equals(f.From.AirportName.Trim().ToLower(), dto.From.Airport.Trim().ToLower())
+                                    && string.Equals(f.To.AirportName.Trim().ToLower(), dto.To.Airport.Trim().ToLower()));
+        }
+
+        public bool IsValidFlightSearchRequest(FlightSearchRequest req)
+        {
+            return req.From != null && req.To != null && req.DepartureDate != null && req.From != req.To;
+        }
+
+        public List<Flight> SearchFlightsByCriteria(FlightSearchRequest req)
+        {
+            return Query()
+                .Include(f => f.From)
+                .Include(f => f.To)
+                .ToList()
+                .Where(o => o.From.AirportName == req.From
+                            && o.To.AirportName == req.To
+                            && DateTime.Parse((string)o.DepartureTime).Date == DateTime.Parse(req.DepartureDate)).ToList();
         }
     }
 }

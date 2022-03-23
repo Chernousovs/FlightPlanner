@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
-using FlightPlanner.Storage;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
 using FlightPlanner.Core.Dto;
 using FlightPlanner.Core.Services;
-using FlightPlanner.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FlightPlanner.Controllers
 {
@@ -23,35 +21,35 @@ namespace FlightPlanner.Controllers
         private readonly IMapper _mapper;
 
         public AdminApiController(
-            IFlightService flightService, 
-            IEnumerable<IValidator> validators, 
+            IFlightService flightService,
+            IEnumerable<IValidator> validators,
             IMapper mapper)
         {
             _flightService = flightService;
             _validators = validators;
             _mapper = mapper;
         }
+
         [HttpGet]
         [Route("flights/{id:int}")]
         public IActionResult GetFlights(int id)
         {
             var flight = _flightService.GetFlightWithAirports(id);
 
-            return flight == null ? NotFound() : (IActionResult) Ok(flight);
+            return flight == null ? NotFound() : (IActionResult)Ok(flight);
         }
 
         [HttpPut]
         [Route("Flights")]
-        public IActionResult PutFlights(AddFlightDto dto)
+        public IActionResult PutFlights(FlightDto dto)
         {
+            if (!_validators.All(v => v.Validate(dto)))
+            {
+                return BadRequest();
+            }
+
             lock (_flightLock)
             {
-
-                if (!_validators.All(v => v.Validate(dto)))
-                {
-                    return BadRequest();
-                }
-
                 if (_flightService.FlightAlreadyExistsInDb(dto))
                 {
                     return Conflict();
@@ -60,10 +58,8 @@ namespace FlightPlanner.Controllers
                 var flight = _mapper.Map<Flight>(dto);
                 _flightService.Create(flight);
 
-                //return Created("",  flight);
-                return Created("",  _mapper.Map<AddFlightDto>(flight));
+                return Created("", _mapper.Map<FlightDto>(flight));
             }
-       
         }
 
         [HttpDelete]
@@ -72,13 +68,10 @@ namespace FlightPlanner.Controllers
         {
             lock (_flightLock)
             {
-                
                 _flightService.DeleteFlightById(id);
 
                 return Ok();
             }
-            
         }
-        
     }
 }
