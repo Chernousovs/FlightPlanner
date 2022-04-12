@@ -1,11 +1,11 @@
-﻿using FlightPlanner.Models;
-using FlightPlanner.Storage;
+﻿using AutoMapper;
+using FlightPlanner.Core.Dto;
+using FlightPlanner.Core.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FlightPlanner.Controllers
 {
@@ -15,52 +15,51 @@ namespace FlightPlanner.Controllers
     [Authorize]
     public class AdminApiController : ControllerBase
     {
-        private static readonly object _flightLock = new object();
-        private readonly FlightPlannerDBContext _context;
+        private readonly object _flightLock = new object();
+        private readonly IFlightService _flightService;
+        private readonly IEnumerable<IValidator> _validators;
+        private readonly IMapper _mapper;
 
-        public AdminApiController(FlightPlannerDBContext context)
+        public AdminApiController(
+            IFlightService flightService,
+            IEnumerable<IValidator> validators,
+            IMapper mapper)
         {
-            _context = context;
+            _flightService = flightService;
+            _validators = validators;
+            _mapper = mapper;
         }
+
         [HttpGet]
         [Route("flights/{id:int}")]
         public IActionResult GetFlights(int id)
         {
-            var flight = _context.Flights
-                .Include(f=> f.From)
-                .Include(f => f.To)
-                .SingleOrDefault(f => f.Id == id);
+            var flight = _flightService.GetFlightWithAirports(id);
 
-            if (flight != null)
-            {
-                return Ok(flight);
-            }
-
-            return NotFound();
+            return flight == null ? NotFound() : (IActionResult)Ok(flight);
         }
 
         [HttpPut]
         [Route("Flights")]
-        public IActionResult PutFlights(AddFlightRequest request)
+        public IActionResult PutFlights(FlightDto dto)
         {
+            if (!_validators.All(v => v.Validate(dto)))
+            {
+                return BadRequest();
+            }
+
             lock (_flightLock)
             {
-
-                if (!FlightStorage.IsValidFlightToAdd(request))
-                {
-                    return BadRequest();
-                }
-
-                if (FlightAlreadyExistsInDB(request))
+                if (_flightService.FlightAlreadyExistsInDb(dto))
                 {
                     return Conflict();
                 }
 
-                _context.Flights.Add(FlightStorage.ConvertToFlight(request));
-                _context.SaveChanges();
-                return Created("",  _context.Flights.OrderBy(o => o.Id).Last());
+                var flight = _mapper.Map<Flight>(dto);
+                _flightService.Create(flight);
+
+                return Created("", _mapper.Map<FlightDto>(flight));
             }
-       
         }
 
         [HttpDelete]
@@ -69,30 +68,10 @@ namespace FlightPlanner.Controllers
         {
             lock (_flightLock)
             {
-                var flight = _context.Flights
-                    .Include(f => f.From)
-                    .Include(f => f.To)
-                    .SingleOrDefault(f => f.Id == id);
-            
-                if (flight == null)
-                {
-                    return Ok();
-                }
-
-                _context.Flights.Remove(flight);
-                _context.SaveChanges();
+                _flightService.DeleteFlightById(id);
 
                 return Ok();
             }
-            
-        }
-
-        private bool FlightAlreadyExistsInDB(AddFlightRequest request)
-        {
-            return _context.Flights.Any(f => f.ArrivalTime == request.ArrivalTime &&
-                                             f.DepartureTime == request.DepartureTime &&
-                                             f.From.AirportName.Trim().ToLower() == request.From.AirportName.Trim().ToLower() &&
-                                             f.To.AirportName.Trim().ToLower() == request.To.AirportName.Trim().ToLower());
         }
     }
 }
