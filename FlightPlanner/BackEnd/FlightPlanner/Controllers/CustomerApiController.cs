@@ -1,11 +1,9 @@
-﻿using FlightPlanner.Models;
-using FlightPlanner.Storage;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using AutoMapper;
+using FlightPlanner.Core.Dto;
+using FlightPlanner.Core.Services;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace FlightPlanner.Controllers
 {
@@ -14,61 +12,52 @@ namespace FlightPlanner.Controllers
     [ApiController]
     public class CustomerApiController : ControllerBase
     {
-        private static readonly object _flightLock = new object();
-        private readonly FlightPlannerDBContext _context;
+        private static readonly object FlightLock = new object();
+        private readonly IFlightService _flightService;
+        private readonly IAirportService _airportService;
+        private readonly IMapper _mapper;
 
-        public CustomerApiController(FlightPlannerDBContext context)
+        public CustomerApiController(
+            IFlightService flightService,
+            IAirportService airportService,
+            IMapper mapper)
         {
-            _context = context;
+            _flightService = flightService;
+            _airportService = airportService;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [Route("airports")]
         public IActionResult SearchAirports(string search)
         {
-            lock (_flightLock)
+            lock (FlightLock)
             {
-                var airport = new List<Airport>();
-                airport.AddRange(_context.Flights.Select(f => f.From));
-                airport.AddRange(_context.Flights.Select(f => f.To));
+                var searchResultAirports = _airportService.SearchAirports(search);
 
-                var searchResultAirports = airport.Where(f => f.AirportName.ToUpper().Contains(search.Trim().ToUpper()) 
-                                                              || f.City.ToUpper().Contains(search.Trim().ToUpper()) 
-                                                              || f.Country.ToUpper().Contains(search.Trim().ToUpper()));
-                if (searchResultAirports.Any())
-                {
-                    return Ok(searchResultAirports);
-                }
-
-                return NotFound();
+                return searchResultAirports.Any() ?
+                    Ok(searchResultAirports.Select(o => _mapper.Map<AirportDto>(o)).ToList()) : NotFound();
             }
-            
         }
 
         [HttpPost]
         [Route("flights/search")]
-        public IActionResult SearchFlights(SearchFlightsRequest req)
+        public IActionResult SearchFlights(FlightSearchRequest req)
         {
-            if (!FlightStorage.IsValidRequest(req))
+            if (!_flightService.IsValidFlightSearchRequest(req))
             {
                 return BadRequest();
             }
 
-            lock (_flightLock)
+            lock (FlightLock)
             {
-                var flightSearchResult = _context.Flights
-                    .Include(f => f.From)
-                    .Include(f => f.To)
-                    .ToList()
-                    .Where(o => o.From.AirportName == req.From
-                                && o.To.AirportName == req.To
-                                && DateTime.Parse(o.DepartureTime).Date == DateTime.Parse(req.DepartureDate)).ToList();
+                var flightSearchResult = _flightService.SearchFlightsByCriteria(req);
 
-                var pageResult = new PageResult<Flight>
+                var pageResult = new PageResult<FlightDto>
                 {
                     Page = 0,
-                    TotalItems = flightSearchResult.Count,
-                    Items = flightSearchResult
+                    TotalItems = flightSearchResult.Count(),
+                    Items = flightSearchResult.Select(o => _mapper.Map<FlightDto>(o)).ToList()
                 };
 
                 return Ok(pageResult);
@@ -79,18 +68,9 @@ namespace FlightPlanner.Controllers
         [Route("flights/{id:int}")]
         public IActionResult GetFlights(int id)
         {
-            
-            var flight = _context.Flights
-                .Include(f=> f.From)
-                .Include(f => f.To)
-                .SingleOrDefault(f => f.Id == id);
-           
-            if (flight != null)
-            {
-                return Ok(flight);
-            }
+            var flight = _flightService.GetFlightWithAirports(id);
 
-            return NotFound();
+            return flight == null ? NotFound() : (IActionResult)Ok(_mapper.Map<FlightDto>(flight));
         }
     }
 }
