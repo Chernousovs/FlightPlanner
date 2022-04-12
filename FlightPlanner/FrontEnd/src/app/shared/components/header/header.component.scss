@@ -1,0 +1,57 @@
+.header-admin {
+  background-color: yellowgreen;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.header-public {
+  background-color: yellowgreen;
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.link-wrapper {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.link {
+  color: black;
+  text-decoration: none;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.link:hover {
+ //color: ;
+ opacity: 0.7;
+}
+
+.active {
+  color: rgb(248, 100, 179);
+}
+
+.login-form {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.login-btn-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+@media screen and (max-width: 500px) {
+  .login-btn-wrapper {
+    width: 100%;
+  }
+}

@@ -1,0 +1,32 @@
+ <div *ngIf="isAdmin" class="header-admin">
+  <div class="link-wrapper">
+    <a
+    *ngFor="let menuItem of adminMenuItems"
+    [routerLink]="menuItem.path"
+    routerLinkActive="active"
+    class="link">
+    <!-- [[routerLinkActive]="active"]  Property 'active does not exists on type Header.Component'-->
+      {{ menuItem.title }}
+    </a>
+  </div>
+  <div class="logout-btn-wrapper">
+    <button (click)="logout()" mat-raised-button color="accent">Logout</button>
+  </div>
+ </div>
+
+ <div *ngIf="!isAdmin" class="header-public">
+  <form class="login-form" [formGroup]="loginForm">
+    <div>
+      <label for="username">Username:  </label>
+      <input id="username" formControlName="username" type="text">
+    </div>
+
+    <div>
+      <label for="password">Password:  </label>
+      <input id="password" formControlName="password" type="password">
+    </div>
+  </form>
+  <div class="login-btn-wrapper">
+    <button (click)="login()" mat-raised-button color="accent">Login</button>
+  </div>
+ </div>

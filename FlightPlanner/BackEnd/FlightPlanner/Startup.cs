@@ -1,4 +1,5 @@
 using AutoMapper;
+using FlightPlanner.Core.Models;
 using FlightPlanner.Core.Services;
 using FlightPlanner.Data;
 using FlightPlanner.Handlers;
