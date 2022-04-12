@@ -18,10 +18,4 @@
     <ProjectReference Include="..\FlightPlanner.Core\FlightPlanner.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FlightPlanner.Core\FlightPlanner.Core.csproj" />
-    <ProjectReference Include="..\FlightPlanner.Data\FlightPlanner.Data.csproj" />
-    <ProjectReference Include="..\FlightPlanner.Services\FlightPlanner.Services.csproj" />
-  </ItemGroup>
-
 </Project>
